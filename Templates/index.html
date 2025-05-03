@@ -228,5 +228,25 @@ footer {
 <footer>
     MoodBeats - Bollywood Edition © 2025 | Your AI-powered music companion
 </footer>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const audios = document.querySelectorAll('audio');
+
+        audios.forEach(audio => {
+            audio.addEventListener('play', () => {
+                audios.forEach(other => {
+                    if (other !== audio) {
+                        other.pause();
+                        other.currentTime = 0; // reset to start
+                    }
+                });
+            });
+        });
+    });
+
+    function updateValue(id, value) {
+        document.getElementById(id).textContent = parseFloat(value).toFixed(1);
+    }
+</script>
 </html>
 
