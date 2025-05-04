@@ -146,8 +146,10 @@
         .song-img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain; /* Changed from cover to contain to prevent cropping */
             display: block;
+            max-width: 100%;
+            max-height: 100%;
         }
         .song-info {
             padding: 16px 20px;
@@ -168,6 +170,7 @@
         }
         footer {
             text-align: center;
+            color: #ffb3f6 Sean:
             color: #ffb3f6;
             margin-top: 50px;
             font-size: 1rem;
@@ -243,10 +246,13 @@
                     <div class="song-info">
                         <div class="song-name">{{ song.name }}</div>
                         <div class="song-artist">{{ song.artist if song.artist else '' }}</div>
-                        <audio controls class="audio-player">
+                        <audio controls class="audio-player" preload="metadata">
                             <source src="{{ song.audio_url }}" type="audio/mpeg">
                             Your browser does not support the audio element.
                         </audio>
+                        <div class="audio-debug" style="font-size: 0.8rem; color: #666; margin-top: 5px;">
+                            Audio URL: {{ song.audio_url }}
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -262,17 +268,17 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const audios = document.querySelectorAll('audio');
-            
+
             audios.forEach(audio => {
                 // Create error and loading message elements
                 const errorMsg = document.createElement('div');
                 errorMsg.className = 'audio-error';
                 errorMsg.textContent = 'Error loading audio. Please try again.';
-                
+
                 const loadingMsg = document.createElement('div');
                 loadingMsg.className = 'audio-loading';
                 loadingMsg.textContent = 'Loading audio...';
-                
+
                 audio.parentNode.appendChild(loadingMsg);
                 audio.parentNode.appendChild(errorMsg);
 
@@ -316,7 +322,7 @@
         document.querySelector('form').addEventListener('submit', function(e) {
             const inputs = this.querySelectorAll('input[type="range"]');
             let isValid = true;
-            
+
             inputs.forEach(input => {
                 const value = parseFloat(input.value);
                 if (isNaN(value) || value < 1 || value > 10) {
@@ -326,7 +332,7 @@
                     input.style.borderColor = '';
                 }
             });
-            
+
             if (!isValid) {
                 e.preventDefault();
                 alert('Please enter valid values between 1 and 10');
