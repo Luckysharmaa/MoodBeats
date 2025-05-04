@@ -1,9 +1,14 @@
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, send_from_directory, send_file
 import joblib
 import random
 import os
+import logging
 
 app = Flask(__name__)
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Load the trained model and label encoder
 model = joblib.load("mood_model.pkl")
@@ -53,6 +58,9 @@ def index():
             dance = float(request.form['danceability'])
             valence = float(request.form['valence'])
 
+            if not (1 <= energy <= 10 and 1 <= dance <= 10 and 1 <= valence <= 10):
+                return render_template("index.html", mood=None, error="Please enter values between 1 and 10")
+
             prediction = model.predict([[energy, dance, valence]])[0]
             mood = le.inverse_transform([prediction])[0]
 
@@ -61,12 +69,25 @@ def index():
             for song in songs:
                 song['image_url'] = url_for('static', filename=f'Images/{song["img"]}')
                 song['audio_url'] = url_for('static', filename=f'Audio/{song["file"]}')
+                logger.debug(f"Generated URL for {song['name']}: {song['audio_url']}")
 
             return render_template("index.html", mood=mood, songs=songs)
+        except ValueError:
+            return render_template("index.html", mood=None, error="Please enter valid numbers")
         except Exception as e:
-            return f"Error occurred: {e}"
+            logger.error(f"Error occurred: {str(e)}")
+            return render_template("index.html", mood=None, error=f"An error occurred: {str(e)}")
 
     return render_template("index.html", mood=None)
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    try:
+        logger.debug(f"Serving static file: {filename}")
+        return send_from_directory('static', filename)
+    except Exception as e:
+        logger.error(f"Error serving static file {filename}: {str(e)}")
+        return str(e), 404
 
 if __name__ == "__main__":
     app.run(debug=True)
