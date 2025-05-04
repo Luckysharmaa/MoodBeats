@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, send_from_directory
 import joblib
 import random
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 # Load the trained model and label encoder
 model = joblib.load("mood_model.pkl")
@@ -60,14 +60,18 @@ def index():
 
             # Process songs to include proper URLs for images and audio files
             for song in songs:
-                song['image_url'] = url_for('static', filename=f'images/{song["img"]}')
-                song['audio_url'] = url_for('static', filename=f'audio/{song["file"]}')
+                song['image_url'] = url_for('static', filename=f'Images/{song["img"]}')
+                song['audio_url'] = url_for('static', filename=f'Audio/{song["file"]}')
 
             return render_template("index.html", mood=mood, songs=songs)
         except Exception as e:
             return f"Error occurred: {e}"
 
     return render_template("index.html", mood=None)
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    return send_from_directory(app.static_folder, filename)
 
 if __name__ == "__main__":
     app.run(debug=True)
