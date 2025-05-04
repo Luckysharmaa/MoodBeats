@@ -129,4 +129,5 @@ def index():
 
     return render_template("index.html", mood=None)
 
-
+if __name__ == "__main__":
+    app.run(debug=True)
