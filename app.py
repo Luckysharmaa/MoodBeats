@@ -2,12 +2,24 @@ from flask import Flask, render_template, request, url_for, send_from_directory
 import joblib
 import random
 import os
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 
+# Log the absolute path of the static folder
+logger.debug(f"Static folder absolute path: {os.path.abspath(app.static_folder)}")
+
 # Load the trained model and label encoder
-model = joblib.load("mood_model.pkl")
-le = joblib.load("label_encoder.pkl")
+try:
+    model = joblib.load("mood_model.pkl")
+    le = joblib.load("label_encoder.pkl")
+    logger.debug("Model and label encoder loaded successfully")
+except Exception as e:
+    logger.error(f"Error loading model or label encoder: {e}")
 
 # Predefined song database
 song_db = {
@@ -52,9 +64,13 @@ def index():
             energy = float(request.form['energy'])
             dance = float(request.form['danceability'])
             valence = float(request.form['valence'])
+            
+            logger.debug(f"Form values: energy={energy}, dance={dance}, valence={valence}")
 
             prediction = model.predict([[energy, dance, valence]])[0]
             mood = le.inverse_transform([prediction])[0]  # Convert label index to label name
+            
+            logger.debug(f"Predicted mood: {mood}")
 
             songs = random.sample(song_db[mood], min(6, len(song_db[mood])))
 
@@ -62,16 +78,37 @@ def index():
             for song in songs:
                 song['image_url'] = url_for('static', filename=f'Images/{song["img"]}')
                 song['audio_url'] = url_for('static', filename=f'Audio/{song["file"]}')
+                
+                # Log the paths to verify they're correct
+                logger.debug(f"Image URL: {song['image_url']}")
+                logger.debug(f"Audio URL: {song['audio_url']}")
+                
+                # Check if files exist
+                image_path = os.path.join(app.static_folder, f'Images/{song["img"]}')
+                audio_path = os.path.join(app.static_folder, f'Audio/{song["file"]}')
+                
+                logger.debug(f"Image path exists: {os.path.exists(image_path)}")
+                logger.debug(f"Audio path exists: {os.path.exists(audio_path)}")
 
             return render_template("index.html", mood=mood, songs=songs)
         except Exception as e:
+            logger.error(f"Error occurred: {e}", exc_info=True)
             return f"Error occurred: {e}"
 
     return render_template("index.html", mood=None)
 
 @app.route('/static/<path:filename>')
 def serve_static(filename):
+    logger.debug(f"Serving static file: {filename}")
     return send_from_directory(app.static_folder, filename)
 
 if __name__ == "__main__":
+    # List files in static/Audio to verify they exist
+    audio_dir = os.path.join(app.static_folder, 'Audio')
+    if os.path.exists(audio_dir):
+        logger.debug(f"Audio directory exists at: {audio_dir}")
+        logger.debug(f"Files in Audio directory: {os.listdir(audio_dir)}")
+    else:
+        logger.error(f"Audio directory does not exist at: {audio_dir}")
+    
     app.run(debug=True)
