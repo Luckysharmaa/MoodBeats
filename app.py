@@ -5,7 +5,7 @@ import os
 import logging
 from werkzeug.utils import secure_filename
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 model = joblib.load("mood_model.pkl")
 le = joblib.load("label_encoder.pkl")
 
-# Updated song database with artist names
+# Song database (unchanged, assuming filenames are correct)
 song_db = {
     'Happy': [
         {'name': 'Yaarian (ABCD)', 'artist': 'Yo Yo Honey Singh', 'img': 'happy1.jpg', 'file': 'happy1.mp3'},
@@ -68,9 +68,16 @@ def index():
             songs = random.sample(song_db[mood], min(6, len(song_db[mood])))
 
             for song in songs:
-                song['image_url'] = url_for('static', filename=f'Images/{song["img"]}')
-                song['audio_url'] = url_for('serve_audio', filename=song["file"])
-                logger.debug(f"Generated URL for {song['name']}: {song['audio_url']}")
+                # Use lowercase 'image' folder
+                image_path = os.path.join('static', 'image', song['img'])
+                if not os.path.exists(image_path):
+                    logger.error(f"Image not found: {image_path}")
+                    song['image_url'] = url_for('static', filename='placeholder.jpg', _external=True)
+                else:
+                    song['image_url'] = url_for('static', filename=f'image/{song["img"]}', _external=True)
+                # Use lowercase 'audio' folder
+                song['audio_url'] = url_for('serve_audio', filename=song["file"], _external=True)
+                logger.debug(f"Song: {song['name']}, Image URL: {song['image_url']}, Audio URL: {song['audio_url']}")
 
             return render_template("index.html", mood=mood, songs=songs)
         except ValueError:
@@ -93,11 +100,22 @@ def serve_static(filename):
 @app.route('/audio/<path:filename>')
 def serve_audio(filename):
     try:
-        logger.debug(f"Serving audio file: {filename}")
-        return send_from_directory('static/Audio', filename, mimetype='audio/mpeg')
+        logger.debug(f"Attempting to serve audio file: {filename}")
+        audio_path = os.path.join('static', 'audio', filename)  # Changed 'Audio' to 'audio'
+        logger.debug(f"Full audio path: {audio_path}")
+
+        if not os.path.exists(audio_path):
+            logger.error(f"Audio file not found: {audio_path}")
+            return "Audio file not found", 404
+
+        return send_file(
+            audio_path,
+            mimetype='audio/mpeg',
+            as_attachment=False
+        )
     except Exception as e:
         logger.error(f"Error serving audio file {filename}: {str(e)}")
-        return str(e), 404
+        return str(e), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
