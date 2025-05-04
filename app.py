@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, url_for, send_from_directory
+from flask import Flask, render_template, request, url_for, send_from_directory, send_file
 import joblib
 import random
 import os
 import logging
+from mimetypes import guess_type
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -64,31 +65,24 @@ def index():
             energy = float(request.form['energy'])
             dance = float(request.form['danceability'])
             valence = float(request.form['valence'])
-            
+
             logger.debug(f"Form values: energy={energy}, dance={dance}, valence={valence}")
 
             prediction = model.predict([[energy, dance, valence]])[0]
             mood = le.inverse_transform([prediction])[0]  # Convert label index to label name
-            
+
             logger.debug(f"Predicted mood: {mood}")
 
             songs = random.sample(song_db[mood], min(6, len(song_db[mood])))
 
             # Process songs to include proper URLs for images and audio files
             for song in songs:
-                song['image_url'] = url_for('static', filename=f'Images/{song["img"]}')
-                song['audio_url'] = url_for('static', filename=f'Audio/{song["file"]}')
-                
+                song['image_url'] = f'/static/Images/{song["img"]}'
+                song['audio_url'] = f'/static/Audio/{song["file"]}'
+
                 # Log the paths to verify they're correct
                 logger.debug(f"Image URL: {song['image_url']}")
                 logger.debug(f"Audio URL: {song['audio_url']}")
-                
-                # Check if files exist
-                image_path = os.path.join(app.static_folder, f'Images/{song["img"]}')
-                audio_path = os.path.join(app.static_folder, f'Audio/{song["file"]}')
-                
-                logger.debug(f"Image path exists: {os.path.exists(image_path)}")
-                logger.debug(f"Audio path exists: {os.path.exists(audio_path)}")
 
             return render_template("index.html", mood=mood, songs=songs)
         except Exception as e:
@@ -102,6 +96,25 @@ def serve_static(filename):
     logger.debug(f"Serving static file: {filename}")
     return send_from_directory(app.static_folder, filename)
 
+@app.route('/audio/<path:filename>')
+def serve_audio(filename):
+    logger.debug(f"Serving audio file: {filename}")
+    audio_path = os.path.join(app.static_folder, 'Audio', filename)
+    if not os.path.exists(audio_path):
+        logger.error(f"Audio file not found: {audio_path}")
+        return "File not found", 404
+    
+    mime_type, _ = guess_type(audio_path)
+    if not mime_type:
+        mime_type = 'audio/mpeg'  # Default to MP3 if type can't be determined
+    
+    return send_file(
+        audio_path,
+        mimetype=mime_type,
+        as_attachment=False,
+        conditional=True
+    )
+
 if __name__ == "__main__":
     # List files in static/Audio to verify they exist
     audio_dir = os.path.join(app.static_folder, 'Audio')
@@ -110,5 +123,5 @@ if __name__ == "__main__":
         logger.debug(f"Files in Audio directory: {os.listdir(audio_dir)}")
     else:
         logger.error(f"Audio directory does not exist at: {audio_dir}")
-    
+
     app.run(debug=True)
