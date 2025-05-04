@@ -60,8 +60,8 @@ def index():
 
             # Process songs to include proper URLs for images and audio files
             for song in songs:
-                song['image_url'] = f'/static/Images/{song["img"]}'
-                song['audio_url'] = f'/static/Audio/{song["file"]}'
+                song['image_url'] = url_for('static', filename=f'Images/{song["img"]}')
+                song['audio_url'] = url_for('static', filename=f'Audio/{song["file"]}')
 
             return render_template("index.html", mood=mood, songs=songs)
         except Exception as e:
