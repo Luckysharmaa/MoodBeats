@@ -3,6 +3,7 @@ import joblib
 import random
 import os
 import logging
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -68,7 +69,7 @@ def index():
 
             for song in songs:
                 song['image_url'] = url_for('static', filename=f'Images/{song["img"]}')
-                song['audio_url'] = url_for('static', filename=f'Audio/{song["file"]}')
+                song['audio_url'] = url_for('serve_audio', filename=song["file"])
                 logger.debug(f"Generated URL for {song['name']}: {song['audio_url']}")
 
             return render_template("index.html", mood=mood, songs=songs)
@@ -87,6 +88,15 @@ def serve_static(filename):
         return send_from_directory('static', filename)
     except Exception as e:
         logger.error(f"Error serving static file {filename}: {str(e)}")
+        return str(e), 404
+
+@app.route('/audio/<path:filename>')
+def serve_audio(filename):
+    try:
+        logger.debug(f"Serving audio file: {filename}")
+        return send_from_directory('static/Audio', filename, mimetype='audio/mpeg')
+    except Exception as e:
+        logger.error(f"Error serving audio file {filename}: {str(e)}")
         return str(e), 404
 
 if __name__ == "__main__":
