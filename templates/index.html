@@ -1,1 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodBeats - Bollywood Edition</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+    background: linear-gradient(135deg, #1a0036 0%, #2d0b52 100%);
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+}
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px 0 0 0;
+}
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.logo {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 18px #ff00cc, 0 0 30px #3333ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.logo-icon {
+    font-size: 3.5rem;
+    color: #ff00cc;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 10px #ff00cc);
+}
+.form-container {
+    background: rgba(30, 0, 60, 0.85);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    padding: 32px 28px;
+    margin-bottom: 30px;
+}
+.form-title {
+    font-size: 1.3rem;
+    margin-bottom: 18px;
+    color: #fff;
+    text-shadow: 0 0 8px #ff00cc;
+}
+.form-group {
+    margin-bottom: 22px;
+}
+label {
+    font-size: 1.1rem;
+    color: #fff;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+input[type="range"] {
+    width: 100%;
+    accent-color: #ff00cc;
+    background: linear-gradient(90deg, #ff00cc 0%, #3333ff 100%);
+    height: 6px;
+    border-radius: 5px;
+    outline: none;
+    margin: 10px 0;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #ff00cc;
+    box-shadow: 0 0 10px #ff00cc, 0 0 20px #3333ff;
+    cursor: pointer;
+    border: 2px solid #fff;
+}
+.value-display {
+    color: #ff00cc;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-top: 2px;
+}
+button {
+    background: linear-gradient(90deg, #ff00cc 0%, #3333ff 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 0 10px #ff00cc;
+    transition: background 0.2s, transform 0.2s;
+}
+button:hover {
+    background: linear-gradient(90deg, #3333ff 0%, #ff00cc 100%);
+    transform: translateY(-2px) scale(1.03);
+}
+.songs-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 28px;
+    margin-top: 18px;
+    justify-items: center;
+}
+.song-card {
+    background: rgba(40, 0, 70, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 0 18px #3333ff44;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    max-width: 270px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+.song-card:hover {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 0 28px #ff00cc88;
+}
+.song-img-wrapper {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #1a0036;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.song-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.song-info {
+    padding: 12px 14px 10px 14px;
+}
+.song-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+}
+.song-artist {
+    font-size: 0.95rem;
+    color: #ffb3f6;
+    margin-bottom: 8px;
+}
+.audio-player {
+    width: 100%;
+}
+footer {
+    text-align: center;
+    color: #ffb3f6;
+    margin-top: 40px;
+    font-size: 0.95rem;
+    opacity: 0.7;
+}
+@media (max-width: 600px) {
+    .songs-container {
+        grid-template-columns: 1fr;
+    }
+    .container {
+        padding: 10px 0 0 0;
+    }
+}
+    </style>
+</head>
+<div class="header">
+    <div class="logo">
+        <span class="logo-icon">🎵</span>
+        MoodBeats
+    </div>
+</div>
+<form method="POST" class="form-container">
+    <h2 class="form-title">How are you feeling today?</h2>
+    <div class="form-group">
+        <label for="energy">🥰 Energy Level</label>
+        <input type="range" min="1" max="10" step="0.1" name="energy" id="energy" value="5" oninput="updateValue('energy-value', this.value)" required>
+        <div class="value-display" id="energy-value">5.0</div>
+    </div>
+    <div class="form-group">
+        <label for="danceability">😊 Danceability</label>
+        <input type="range" min="1" max="10" step="0.1" name="danceability" id="danceability" value="5" oninput="updateValue('dance-value', this.value)" required>
+        <div class="value-display" id="dance-value">5.0</div>
+    </div>
+    <div class="form-group">
+        <label for="valence">🥰 Positivity</label>
+        <input type="range" min="1" max="10" step="0.1" name="valence" id="valence" value="5" oninput="updateValue('valence-value', this.value)" required>
+        <div class="value-display" id="valence-value">5.0</div>
+    </div>
+    <button type="submit">Find My Perfect Songs 🎶</button>
+</form>
+{% if mood %}
+<div class="mood-section">
+    <div class="mood-title">
+        <i class="fas fa-heart"></i> Your Mood: <span class="mood-name">{{ mood }}</span>
+    </div>
+    <div class="songs-container">
+        {% for song in songs %}
+        <div class="song-card">
+            <div class="song-img-wrapper">
+                <img src="{{ song.image_url }}" alt="{{ song.name }}" class="song-img">
+            </div>
+            <div class="song-info">
+                <div class="song-name">{{ song.name }}</div>
+                <div class="song-artist">{{ song.artist if song.artist else '' }}</div>
+                <audio controls class="audio-player">
+                    <source src="{{ song.audio_url }}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+<footer>
+    MoodBeats - Bollywood Edition © 2025 | Your AI-powered music companion
+</footer>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const audios = document.querySelectorAll('audio');
 
+        audios.forEach(audio => {
+            audio.addEventListener('play', () => {
+                audios.forEach(other => {
+                    if (other !== audio) {
+                        other.pause();
+                        other.currentTime = 0; // reset to start
+                    }
+                });
+            });
+        });
+    });
+
+    function updateValue(id, value) {
+        document.getElementById(id).textContent = parseFloat(value).toFixed(1);
+    }
+</script>
+</html>
