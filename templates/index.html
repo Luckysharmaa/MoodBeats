@@ -4,7 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MoodBeats - Bollywood Edition</title>
+    <!-- Open Graph Meta Tags for Social Media Previews -->
+    <meta property="og:title" content="MoodBeats - Bollywood Edition">
+    <meta property="og:description" content="Discover Bollywood songs that match your mood with MoodBeats! Input your energy, danceability, and positivity, and get a curated playlist powered by machine learning.">
+    <meta property="og:image" content="https://moodbeats.onrender.com/static/image/preview.jpg">
+    <meta property="og:url" content="https://moodbeats.onrender.com">
+    <meta property="og:type" content="website">
+    <!-- Standard Meta Tags -->
+    <meta name="description" content="MoodBeats is an AI-powered web app that recommends Bollywood songs based on your mood. Try it now!">
+    <meta name="keywords" content="MoodBeats, Bollywood music, song recommender, machine learning, Flask">
+    <meta name="author" content="Your Name">
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Optional: Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <style>
         body {
             background: linear-gradient(135deg, #1a0036 0%, #2d0b52 100%);
@@ -170,7 +183,6 @@
         }
         footer {
             text-align: center;
-            color: #ffb3f6 Sean:
             color: #ffb3f6;
             margin-top: 50px;
             font-size: 1rem;
